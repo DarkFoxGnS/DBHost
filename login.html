@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+        <script type="text/javascript">
+            function init(){
+                if(typeof CryptoJS === "undefined"){
+                    alert("Crypto.JS couldn't be downloaded, please check your internet connection and try again.");
+                }
+            }
+            function sendCredentials(){
+                var user = document.getElementById("user");
+                var pass = document.getElementById("pass");
+                var login = document.getElementById("Login");
+                var errorDisplay = document.getElementById("errorDisplay");
+                
+                if(user.value==""){
+                    blinkError(user);
+                    errorDisplay.innerHTML="Username can not be empty";
+                    return;
+                }
+                if(pass.value==""){
+                    blinkError(pass);
+                    errorDisplay.innerHTML="Password can not be empty";
+                    return;
+                }
+
+                var xmlreq = new XMLHttpRequest();
+                xmlreq.onload = () =>{
+                    if(xmlreq.status == 403){
+                        errorDisplay.innerHTML="Wrong username or password";
+                        pass.value = "";
+                        blinkError(login);
+                    }else{
+//                        window.location = "/";
+                        window.location = xmlreq.responseText;
+                    }
+                };
+                xmlreq.open("GET","/auth",true);
+                document.cookie="Auth="+user.value+" "+CryptoJS.SHA256(btoa(user.value+":"+pass.value))+";Max-Age=1";
+                document.cookie="command=;Max-Age=-1";
+                xmlreq.send();
+            }
+
+            function blinkError(dom){
+                dom.classList.add("errorBorder");
+                setTimeout(()=>{
+                    dom.classList.remove("errorBorder");
+                },1000);
+            }
+        </script>
+        <style type="text/css">
+            body{
+                background: lightgray;
+            }
+            #errorDisplay{
+                background-color: red;
+                max-height: 10%;
+                width: 100%;
+            }
+            h1{
+                font-size: larger;
+                height: 10%;
+            }
+            #Login{
+                border: solid 2px;
+                border-color: black;
+                border-radius: 20px;
+                background: darkgray;
+                position: absolute;
+                top: 5%;
+                bottom: 5%;
+                left: 5%;
+                right: 5%;
+                text-align: center;
+                overflow: hidden;
+            }
+            input{
+                font-size: larger;
+                border-style: solid;
+                margin:  5px;
+                width: 90%;
+                height: 10%;
+                border-radius: 20px;
+                text-align: center;
+            }
+            button{
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                height: 15vh;
+                width: 15vh;
+                border-radius: 50%;
+                border-style: solid;
+                overflow: hidden;
+            }
+            @-webkit-keyframes blinkingBorder{
+                from, to{
+                    border-color: black;
+                }
+                50%{
+                    border-color: red;
+                }
+            }
+            @keyframes blinkingBorder{
+                from, to{
+                    border-color: black;
+                } 
+               50%{
+                    border-color: red;
+                }
+            }
+            .errorBorder{
+                -webkit-animation: blinkingBorder 200ms step-end 5;
+                animation: blinkingBorder 200ms step-end 5;
+            }
+            @media only screen and (min-width: 1000px){ 
+               #Login{
+                    top: 25%;
+                    bottom: 25%;
+                    left: 25%;
+                    right: 25%;
+                }
+            }
+        </style>
+    </head>
+    <body onload="init()">
+        <div id="Login">
+            <h1>Login to get access to the database</h1>
+            <input id="user" placeholder="Username" type="text"/><br>
+            <input id="pass" placeholder="Password" type="password"/><br>
+            <p id="errorDisplay"></p>
+            <button onclick="sendCredentials()">
+                <svg width="100%" height="100%" viewBox="0 0 100 100">
+                    <polygon points="10,40 50,40 50,20 80,50 50,80 50,60 10,60" style="fill:black"/>
+                </svg>
+            </button>
+        </div>
+    </body>
+</html>

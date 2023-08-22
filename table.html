@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript">
+            function init() {
+                loadCommands();
+                loadTable();
+            }
+            var headers = [];
+            var data = [];
+            var displayData = [];
+            var filter = [];
+            function displayTable() {
+                filterData();
+                displayData.sort(sortTable);
+                var content = document.getElementById("content");
+                var result = "";
+                result += "<table><tbody><tr>";
+                for (var i = 0; i < headers.length; i++) {
+                    var filter = "";
+                    if (i == sortIndex) {
+                        filter = ((ascSort) ? "asc" : "desc");
+                    }
+                    result += "<th class=\"" + filter + "\" onclick=\"applySort(" + i + ")\">" + headers[i] + "</th>";
+                }
+                result += "</tr>";
+                for (var i = 0; i < displayData.length; i++) {
+                    result += "<tr>";
+                    for (var j = 0; j < displayData[i].length; j++) {
+                        result += "<td>" + displayData[i][j] + "</td>";
+                    }
+                    result += "</tr>";
+                }
+                result += "</tbody></table>";
+                content.innerHTML = result;
+            }
+            var sortIndex = 0;
+            var ascSort = true;
+            function applySort(index) {
+                if (sortIndex == index) {
+                    ascSort = !ascSort;
+                } else {
+                    sortIndex = index;
+                    ascSort = true;
+                }
+                displayTable();
+            }
+            function sortTable(a, b) {
+                if (ascSort) {
+                    return sortASC(a[sortIndex], b[sortIndex]);
+                } else {
+                    return sortDESC(a[sortIndex], b[sortIndex]);
+                }
+            }
+            function sortASC(a, b) {
+                if (a == b) {
+                    return 0;
+                }
+
+                if (isNaN(a)) {
+                    return (a < b) ? -1 : 1;
+                }
+                return (a * 1 < b * 1) ? -1 : 1;
+            }
+            function sortDESC(a, b) {
+                if (a == b) {
+                    return 0;
+                }
+                if (isNaN(a)) {
+                    return (a < b) ? 1 : -1;
+                }
+                return (a * 1 < b * 1) ? 1 : -1;
+            }
+            function filterData() {
+                var index = 0;
+                displayData = [];
+                for (var i = 0; i < data.length; i++) {
+                    let allowed = true;
+                    for (var j = 0; j < filter.length; j++) {
+                        console.log(data[i][filter[j][0]]);
+                        if (!(data[i][filter[j][0]] == filter[j][1])) {
+                            allowed = false;
+                        }
+                    }
+                    if (allowed) {
+                        displayData[index] = data[i];
+                        index++;
+                    }
+                }
+            }
+            function resetFilter() {
+                filter = [];
+                sortIndex = 0;
+                for (var i = 0; i < headers.length; i++) {
+                    var filterDOM = document.getElementById("select:" + i);
+                    filterDOM.selectedIndex = 0;
+                }
+                displayTable();
+                showHideSearch();
+            }
+            function applyFilter() {
+                var filterIndex = 0;
+                sortIndex = 0;
+                filter = [];
+                for (var i = 0; i < headers.length; i++) {
+                    var filterDOM = document.getElementById("select:" + i);
+                    if (filterDOM.selectedIndex != 0) {
+                        filter[filterIndex] = [i, filterDOM.value];
+                        filterIndex++;
+                    }
+                }
+                displayTable();
+                showHideSearch();
+            }
+            function loadTable() {
+                var xmlreq = new XMLHttpRequest();
+                xmlreq.onload = () => {
+                    var table = xmlreq.responseText.split(";");
+                    headers = table[0].split(",");
+                    for (var i = 1; i < table.length; i++) {
+                        data[i - 1] = table[i].split(",");
+                    }
+
+                    for (var i = 0; i < headers.length; i++) {
+                        headers[i] = headers[i].replaceAll("%u44", ",");
+                        headers[i] = headers[i].replaceAll("%u59", ";");
+                        headers[i] = headers[i].trim();
+                    }
+                    for (var i = 0; i < data.length; i++) {
+                        for (var j = 0; j < data[i].length; j++) {
+                            data[i][j] = data[i][j].replaceAll("%u44", ",");
+                            data[i][j] = data[i][j].replaceAll("%u59", ";");
+                            data[i][j] = data[i][j].trim();
+                        }
+                    }
+
+                    loadSearch();
+                    displayTable();
+                };
+                xmlreq.open("GET", "/command", true);
+                xmlreq.send();
+            }
+            function loadSearch() {
+                var context = document.getElementById("searchGrid");
+                var content = "";
+                for (var i = 0; i < headers.length; i++) {
+                    content += "<p>" + headers[i] + "</p>";
+                    content += "<select id=\"select:" + i + "\">";
+                    content += "<option>&lt;any&gt;</option>";
+                    var list = [];
+                    var index = 0;
+                    for (var j = 0; j < data.length; j++) {
+                        if (!list.includes(data[j][i])) {
+                            list[index] = data[j][i];
+                            index++;
+                        }
+                    }
+                    list.sort(sortASC);
+                    for (var j = 0; j < list.length; j++) {
+                        content += "<option>" + list[j] + "</option>";
+                    }
+                    content += "</select>";
+                }
+                context.innerHTML = content;
+            }
+            function loadCommands() {
+                var xmlreq = new XMLHttpRequest();
+                xmlreq.onload = () => {
+                    var res = xmlreq.responseText.split(";");
+                    var list = [];
+                    for (var i = 0; i < res.length; i++) {
+                        list[i] = res[i].split(":").reverse();
+                    }
+                    list.sort();
+                    var buttonList = "";
+                    var navList = document.getElementById("navlist");
+                    for (var i = 0; i < list.length; i++) {
+                        buttonList += "<button onclick=\"openTable(" + list[i][1] + ")\" class=\"buttonList\">"
+                                + list[i][0];
+                        +"</button>";
+                    }
+                    navList.innerHTML += buttonList;
+                };
+                xmlreq.open("GET", "/commands", true);
+                xmlreq.send();
+            }
+
+            var searchVisibility = false;
+            var menuVisibility = false;
+            var profileVisibility = false;
+            function showHideMenu() {
+                menuVisibility = !menuVisibility;
+                profileVisibility = false;
+                searchVisibility = false;
+                updateUI();
+            }
+            function showHideProfile() {
+                profileVisibility = !profileVisibility;
+                menuVisibility = false;
+                searchVisibility = false;
+                updateUI();
+            }
+            function showHideSearch() {
+                searchVisibility = !searchVisibility;
+                menuVisibility = false;
+                profileVisibility = false;
+                updateUI();
+            }
+            function updateUI() {
+                if (searchVisibility) {
+                    document.getElementById("search").style.display = "inline";
+                    document.getElementById("searchButton").style.backgroundColor = "#606060";
+                } else {
+                    document.getElementById("search").style.display = "none";
+                    document.getElementById("searchButton").style.backgroundColor = "gray";
+                }
+                if (menuVisibility) {
+                    document.getElementById("navlist").style.display = "inline";
+                    document.getElementById("menuButton").style.backgroundColor = "#606060";
+                } else {
+                    document.getElementById("navlist").style.display = "none";
+                    document.getElementById("menuButton").style.backgroundColor = "gray";
+                }
+
+                if (profileVisibility) {
+                    document.getElementsByTagName("footer")[0].style.display = "inline";
+                    document.getElementById("profile").style.display = "inline";
+                    document.getElementById("profileButton").style.backgroundColor = "#606060";
+                } else {
+                    if (window.innerWidth < 768) {
+                        document.getElementsByTagName("footer")[0].style.display = "none";
+                    }
+                    document.getElementById("profile").style.display = "none";
+                    document.getElementById("profileButton").style.backgroundColor = "gray";
+                }
+            }
+            function openTable(dest) {
+                document.cookie = "command=" + dest;
+                document.location = "/";
+            }
+            function logout() {
+                document.location = "/logout";
+            }
+        </script>
+        <style type="text/css">
+            body{
+                margin: 0px;
+            }
+            .buttonList{
+                width: 100%;
+                height: 7dvh;
+                background-color: gray;
+                font-size: 3dvh;
+                border:none;
+                border-top: black solid 1px;
+            }
+            .buttonList:first-of-type{
+                border: none;
+            }
+            .buttonList:active{
+                background-color: #606060;
+            }
+            table{
+                min-width: 100%;
+                border-collapse: collapse;
+                border-style: solid;
+                border-width: 1px;
+                margin-bottom: 5px;
+            }
+            #content{
+                max-width: 100%;
+                height: 90dvh;
+                overflow:auto;
+            }
+            #nav{
+                border-top: black ridge 2px;
+                border-bottom: black groove 2px;
+                position: absolute;
+                background-color: gray;
+                left:0px;
+                bottom: 0px;
+                height: 10dvh;
+                width: 100%;
+                z-index: 10;
+                display: flex;
+                justify-content: space-around;
+            }
+            #nav button{
+                height: 100%;
+                width: 33%;
+                border: none;
+                background-color: gray;
+            }
+            #nav button:active{
+                background-color: #606060;
+            }
+            #nav #search{
+                border-left: black groove 1px;
+                border-right: black ridge 1px;
+                border-radius: 10%;
+            }
+            td,th{
+                border-style: solid;
+                border-color: black;
+                border-width: 1px;
+            }
+            tr:hover{
+                background-color: lightgray;
+            }
+            th{
+                position: sticky;
+                top: 0px;
+                background-color: gray;
+                user-select:none;
+            }
+            footer{
+                display: none;
+                background-color: grey;
+                position: absolute;
+                bottom: 10dvh;
+                left: 0px;
+                right: 0px;
+                font-size: 2.5dvh;
+                height: 5dvh;
+                text-align: center;
+                z-index: 10;
+            }
+            footer p{
+                margin: 0px;
+                position: relative;
+                top: 20%;
+                bottom: 20%;
+            }
+            #search{
+                display: none;
+                position: absolute;
+                top:0px;
+                left: 0px;
+                width: 100%;
+                height: 90dvh;
+                background-color: gray;
+                z-index: 3;
+                overflow-y: auto;
+            }
+            #search p{
+                font-size: 4dvh;
+                width: 100%;
+                height: 5dvh;
+                background-color: #606060;
+            }
+            #search button{
+                position: absolute;
+                width: 100%;
+                height: 7dvh;
+                border:none;
+                border-top: black solid 1px;
+                background-color: gray;
+                font-size: 4dvh;
+            }
+            #search #apply{
+                bottom: 7dvh;
+            }
+            #search #reset{
+                background-color: red;
+                color: white;
+                bottom: 0dvh;
+            }
+            #searchList{
+                width: 100%;
+                height: 71dvh;
+            }
+            #searchList div {
+                display: grid;
+                grid-template-columns: 50% 50%;
+            }
+            #searchList p,select{
+                overflow-wrap: break-word;
+                height: auto;
+                border: none;
+                border-top: black solid 1px;
+                background-color: gray;
+                font-size: 3dvh;
+            }
+            #searchList p{
+                min-height: 4dvh;
+                padding-top: 1dvh;
+                padding-left: 1dvw;
+            }
+            #searchList select{
+                min-height: 5dvh;
+                border: inset 2px;
+                background-color: #707070;
+                padding-right: 1dvw;
+                text-align: center;
+            }
+            #searchList p:first-of-type{
+                border: none;
+            }
+            #navlist{
+                display: none;
+                position: absolute;
+                top:0px;
+                left: 0px;
+                width: 100%;
+                height: 90dvh;
+                background-color: gray;
+                z-index: 3;
+                overflow-y: auto;
+            }
+            #navlist p{
+                font-size: 4dvh;
+                width: 100%;
+                height: 5dvh;
+                background-color: #606060;
+            }
+            #navlist button{
+                text-align: left;
+            }
+
+            #navlist button:before{
+                content: '\27A2';
+            }
+            #profile{
+                display: none;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                right: 0px;
+                height: 85dvh;
+                background-color: gray;
+                z-index: 2;
+                text-align: center;
+            }
+            #profile button{
+                position: absolute;
+                left: 5dvw;
+                bottom: 0px;
+                width: 90%;
+                height: 10dvh;
+                border-radius: 5dvh;
+                background-color: red;
+                color: white;
+                border: black solid 1px;
+                font-size: 2.5dvh;
+            }
+            #profile h1,p {
+                margin: 0px;
+            }
+            #profile svg{
+                height: min(100%,50dvh);
+            }
+            .asc:before,.asc:after{
+                content: '\2304';
+            }
+            .desc:before,.desc:after{
+                content: '\2303';
+            }
+            @media print{
+                *{
+                    visibility: collapse;
+                }
+                #content{
+                    height: auto;
+                }
+                tr:nth-child(odd){
+                    background-color: lightgray;
+                    border: solid 1px;
+                }
+
+                #content *{
+                    visibility: visible;
+                }
+            }
+            @media only screen and (min-width: 768px){
+                #nav{
+                    top: 0;
+                    left: 0;
+                    height: 100%;
+                    width: 10dvw;
+                    display: inline;
+                    border: none;
+                    border-right:  black solid 1px;
+                }
+                #navlist,#profile,#search{
+                    width: 90dvw;
+                    height: 95dvh;
+                    left: 10dvw;
+                }
+                #profile button{
+                    bottom: 5%;
+                }
+                #nav button{
+                    height: 10%;
+                    width: 100%;
+                }
+                #content{
+                    position: absolute;
+                    height: 95dvh;
+                    width: 90dvw;
+                    left : 10dvw;
+                }
+                footer{
+                    border-top: black solid 1px;
+                    bottom: 0px;
+                    left: 0px;
+                    display: inline;
+                }
+
+            }
+            @media only screen and (min-width: 1024px){
+                #nav{
+                    width: max(5dvw,100px);
+                }
+                #navlist,#profile,#search{
+                    width: calc(100dvw - max(5dvw,100px));
+                    left: max(5%,100px);
+                }
+                #content{
+                    left: min(10dvw,100px);
+                    width: calc(100dvw - min(10dvw,100px));
+                }
+            }
+        </style>
+    </head>
+
+    <body onload="init()">
+        <div id="nav">
+            <button id="menuButton" onclick="showHideMenu()">
+                <svg height="100%" width="100%" viewbox="0 0 100 100"><g stroke="black" stroke-width="6"><path stroke-linecap="round" d="M0 25 L100 25"/><path stroke-linecap="round" d="M0 50 L100 50"/><path stroke-linecap="round" d="M0 75 L100 75"/></g></svg>
+            </button>
+            <button id="searchButton" onclick="showHideSearch()">
+                <svg height="100%" width="100%" viewbox="0 0 100 100"><g stroke="black" stroke-width="6"><path stroke-linecap="round" d="M20 80 L50 55"/></g><circle cx="70" cy="40" r="25" stroke="black" stroke-width="6" fill="none"/></svg>
+            </button>
+            <button id="profileButton" onclick="showHideProfile()">
+                <svg height="100%" width="100%" viewbox="0 0 100 100"><circle cx="50" cy="30" r="20" stroke="black" stroke-width="6" fill="none"/><g stroke="black" stroke-width="6"><path d="M20 80 A 30 30 0 0 1 80 80 Z"/></g></svg>
+            </button>
+        </div>
+        <div id="search">
+            <p>Filters:</p>
+            <div id="searchList">
+                <div id="searchGrid">
+                </div>
+            </div>
+            <button id="apply" onclick="applyFilter()">Apply filter</button>
+            <button id="reset" onclick="resetFilter()">Reset filter</button>
+        </div>
+        <div id="navlist">
+            <p>Tables:</p>
+        </div>
+        <div id="profile">
+            <svg height="70dvw" width="70dvw" viewbox="0 0 100 100"><circle fill="none" stroke="black" stroke-width="3" cx ="50" cy="50" r="47"/><circle cx="50" cy="30" r="20" stroke="black" stroke-width="6" fill="none"/><g stroke="black" stroke-width="6"><path d="M20 80 A 30 30 0 0 1 80 80 Z"/></g></svg>
+            <h1>$userNick$</h1>
+            <p>Username: $userName$</p>
+            <p>Role: $accessLevel$</p>
+            <button onclick="logout()">Logout</button>
+        </div>
+        <div id="content">
+        </div>
+
+        <footer>
+            <p>Site design @ 2023 Tibor Péter Szabó</p>
+        </footer>
+    </body>
+</html>
