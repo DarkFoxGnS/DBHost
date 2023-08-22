@@ -7,11 +7,11 @@ To get started with hosting the application, just launch the Start.bat file in t
 After "Waiting for connections..." is displayed, you can connect to the website, by typing "localhost" into the browser.
 
 From this point you have a set of users, into which you can log into, each of them have access to sets of commands, that their access level allows.
-Example users and their passwords (username - password):
+Example users and their passwords (username : password):
 
-  admin - admin
-  Skylar - Boss
-  Tibor - Passw0rd
+  -admin : admin
+  -Skylar : Boss
+  -Tibor : Passw0rd
 
 The user "admin" and "Tibor" have access to all of the commands (even the direct unformated datadumps of the tables).
 Skylar as the boss have limited access to commands like "Get Employees","Get machines","Get members of workgroups","Get workgroups".
