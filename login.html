@@ -12,44 +12,50 @@ and open the template in the editor.
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
         <script type="text/javascript">
             function init(){
+                //check if the CryptoJS library is available
                 if(typeof CryptoJS === "undefined"){
                     alert("Crypto.JS couldn't be downloaded, please check your internet connection and try again.");
                 }
             }
             function sendCredentials(){
+                //collect credentials
                 var user = document.getElementById("user");
                 var pass = document.getElementById("pass");
                 var login = document.getElementById("Login");
                 var errorDisplay = document.getElementById("errorDisplay");
-                
+                //check if the username is empty
                 if(user.value==""){
                     blinkError(user);
                     errorDisplay.innerHTML="Username can not be empty";
                     return;
                 }
+                //check if the password is empty
                 if(pass.value==""){
                     blinkError(pass);
                     errorDisplay.innerHTML="Password can not be empty";
                     return;
                 }
-
+                //create XMLRequest
                 var xmlreq = new XMLHttpRequest();
                 xmlreq.onload = () =>{
+                    //if server declines auth, display it.
                     if(xmlreq.status == 403){
                         errorDisplay.innerHTML="Wrong username or password";
                         pass.value = "";
                         blinkError(login);
                     }else{
-//                        window.location = "/";
+                        //send user to the given URL
                         window.location = xmlreq.responseText;
                     }
                 };
+                //open request
                 xmlreq.open("GET","/auth",true);
-                document.cookie="Auth="+user.value+" "+CryptoJS.SHA256(btoa(user.value+":"+pass.value))+";Max-Age=1";
-                document.cookie="command=;Max-Age=-1";
-                xmlreq.send();
+                document.cookie="Auth="+user.value+" "+CryptoJS.SHA256(btoa(user.value+":"+pass.value))+";Max-Age=1"; //add auth cookie
+                document.cookie="command=;Max-Age=-1"; // remove command cookie (if there is)
+                xmlreq.send();//send request.
             }
-
+            
+            //ads and removes the blicking border effect.
             function blinkError(dom){
                 dom.classList.add("errorBorder");
                 setTimeout(()=>{

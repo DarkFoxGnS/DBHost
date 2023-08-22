@@ -6,8 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript">
             function init() {
+                //create XMLRequest
                 var xmlreq = new XMLHttpRequest();
                 xmlreq.onload = () => {
+                    //split the command String
                     var res = xmlreq.responseText.split(";");
                     var list = [];
                     for (var i = 0; i < res.length; i++) {
@@ -17,6 +19,7 @@
                     var buttonList = "";
                     var content = document.getElementById("content");
                     var navList = document.getElementById("navlist");
+                    //fill navList and content with the same list of navigation buttons
                     for (var i = 0; i < list.length; i++) {
                         buttonList += "<button onclick=\"openTable(" + list[i][1] + ")\" class=\"buttonList\">"
                                 + list[i][0];
@@ -31,16 +34,19 @@
 
             var menuVisibility = false;
             var profileVisibility = false;
+            //switch between menu visibility
             function showHideMenu() {
                 menuVisibility = !menuVisibility;
                 profileVisibility = false;
                 updateUI();
             }
+            //switch between profile visibility
             function showHideProfile() {
                 profileVisibility = !profileVisibility;
                 menuVisibility = false;
                 updateUI();
             }
+            //updates UI based on the visibility values
             function updateUI() {
                 if (menuVisibility) {
                     document.getElementById("navlist").style.display = "inline";
@@ -62,11 +68,12 @@
                     document.getElementById("profileButton").style.backgroundColor = "gray";
                 }
             }
-
+            //sets command cookie and refreshes the site
             function openTable(dest) {
                 document.cookie = "command=" + dest;
                 document.location = "/";
             }
+            //sets current page to logout
             function logout() {
                 document.location = "/logout";
             }

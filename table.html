@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript">
+            //starting function
             function init() {
                 loadCommands();
                 loadTable();
@@ -13,11 +14,13 @@
             var data = [];
             var displayData = [];
             var filter = [];
+            //displays data to the content table
             function displayTable() {
                 filterData();
                 displayData.sort(sortTable);
                 var content = document.getElementById("content");
                 var result = "";
+                //assemble table
                 result += "<table><tbody><tr>";
                 for (var i = 0; i < headers.length; i++) {
                     var filter = "";
@@ -35,10 +38,12 @@
                     result += "</tr>";
                 }
                 result += "</tbody></table>";
+                //set table as the content
                 content.innerHTML = result;
             }
             var sortIndex = 0;
             var ascSort = true;
+            //selects correct sorting method
             function applySort(index) {
                 if (sortIndex == index) {
                     ascSort = !ascSort;
@@ -48,6 +53,7 @@
                 }
                 displayTable();
             }
+            //sorts table
             function sortTable(a, b) {
                 if (ascSort) {
                     return sortASC(a[sortIndex], b[sortIndex]);
@@ -55,6 +61,7 @@
                     return sortDESC(a[sortIndex], b[sortIndex]);
                 }
             }
+            //sorts in both numerical and alphabetical ascending order
             function sortASC(a, b) {
                 if (a == b) {
                     return 0;
@@ -65,6 +72,7 @@
                 }
                 return (a * 1 < b * 1) ? -1 : 1;
             }
+            //sorts in both numerical and alphabetical descending order
             function sortDESC(a, b) {
                 if (a == b) {
                     return 0;
@@ -74,6 +82,7 @@
                 }
                 return (a * 1 < b * 1) ? 1 : -1;
             }
+            //filters data given filters
             function filterData() {
                 var index = 0;
                 displayData = [];
@@ -91,6 +100,7 @@
                     }
                 }
             }
+            //clear filters
             function resetFilter() {
                 filter = [];
                 sortIndex = 0;
@@ -101,6 +111,7 @@
                 displayTable();
                 showHideSearch();
             }
+            //get filter settings and add them as filters
             function applyFilter() {
                 var filterIndex = 0;
                 sortIndex = 0;
@@ -115,20 +126,23 @@
                 displayTable();
                 showHideSearch();
             }
+            //request and parses table content from the server
             function loadTable() {
                 var xmlreq = new XMLHttpRequest();
+                //request content
                 xmlreq.onload = () => {
                     var table = xmlreq.responseText.split(";");
                     headers = table[0].split(",");
                     for (var i = 1; i < table.length; i++) {
                         data[i - 1] = table[i].split(",");
                     }
-
+                    //creates headers
                     for (var i = 0; i < headers.length; i++) {
                         headers[i] = headers[i].replaceAll("%u44", ",");
                         headers[i] = headers[i].replaceAll("%u59", ";");
                         headers[i] = headers[i].trim();
                     }
+                    //fill cells with data
                     for (var i = 0; i < data.length; i++) {
                         for (var j = 0; j < data[i].length; j++) {
                             data[i][j] = data[i][j].replaceAll("%u44", ",");
@@ -143,9 +157,11 @@
                 xmlreq.open("GET", "/command", true);
                 xmlreq.send();
             }
+            //fill filter options
             function loadSearch() {
                 var context = document.getElementById("searchGrid");
                 var content = "";
+                //create html dom elements given headers
                 for (var i = 0; i < headers.length; i++) {
                     content += "<p>" + headers[i] + "</p>";
                     content += "<select id=\"select:" + i + "\">";
@@ -166,6 +182,7 @@
                 }
                 context.innerHTML = content;
             }
+            // load commands into the navbar
             function loadCommands() {
                 var xmlreq = new XMLHttpRequest();
                 xmlreq.onload = () => {
@@ -177,6 +194,7 @@
                     list.sort();
                     var buttonList = "";
                     var navList = document.getElementById("navlist");
+                    //create a DOM list of buttons
                     for (var i = 0; i < list.length; i++) {
                         buttonList += "<button onclick=\"openTable(" + list[i][1] + ")\" class=\"buttonList\">"
                                 + list[i][0];
@@ -191,24 +209,28 @@
             var searchVisibility = false;
             var menuVisibility = false;
             var profileVisibility = false;
+            //switches menu visibility variable
             function showHideMenu() {
                 menuVisibility = !menuVisibility;
                 profileVisibility = false;
                 searchVisibility = false;
                 updateUI();
             }
+            //switches profile visibility variable
             function showHideProfile() {
                 profileVisibility = !profileVisibility;
                 menuVisibility = false;
                 searchVisibility = false;
                 updateUI();
             }
+            //switches search visibility variable
             function showHideSearch() {
                 searchVisibility = !searchVisibility;
                 menuVisibility = false;
                 profileVisibility = false;
                 updateUI();
             }
+            //updates the UI based on the visibility variables
             function updateUI() {
                 if (searchVisibility) {
                     document.getElementById("search").style.display = "inline";
@@ -237,10 +259,12 @@
                     document.getElementById("profileButton").style.backgroundColor = "gray";
                 }
             }
+            //sets command cookie as the next command and refreshes the site
             function openTable(dest) {
                 document.cookie = "command=" + dest;
                 document.location = "/";
             }
+            //set site to logout
             function logout() {
                 document.location = "/logout";
             }
