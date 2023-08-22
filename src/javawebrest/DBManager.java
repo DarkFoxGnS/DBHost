@@ -110,7 +110,7 @@ public class DBManager {
     public static boolean init() {
         try {
             System.out.print("Connecting to Database...");
-            connection = DriverManager.getConnection("jdbc:sqlite:./sql/test.db");
+            connection = DriverManager.getConnection("jdbc:sqlite:./sql/database.db");
             System.out.println("Done");
             statement = connection.createStatement();
         } catch (Exception e) {
