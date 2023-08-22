@@ -8,6 +8,7 @@ After "Waiting for connections..." is displayed, you can connect to the website,
 
 From this point you have a set of users, into which you can log into, each of them have access to sets of commands, that their access level allows.
 Example users and their passwords (username - password):
+
   admin - admin
   Skylar - Boss
   Tibor - Passw0rd
