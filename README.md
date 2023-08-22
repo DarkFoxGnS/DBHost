@@ -7,7 +7,7 @@ To get started with hosting the application, just launch the Start.bat file in t
 After "Waiting for connections..." is displayed, you can connect to the website, by typing "localhost" into the browser.
 
 From this point you have a set of users, into which you can log into, each of them have access to sets of commands, that their access level allows.
-Example users and their passwords (username : password):
+Example users and their passwords (username : password) separated by ',':
 
   admin : admin, 
   Skylar : Boss, 
