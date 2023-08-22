@@ -1,0 +1,1 @@
+call "dist/javadoc/index.html"
