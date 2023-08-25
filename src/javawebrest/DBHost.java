@@ -33,7 +33,7 @@ public class DBHost {
             System.out.println("Waiting for connections...");
             while (true) {
                 Socket client = ss.accept(); // wait till a connection is requested
-                System.out.println("\u001B[41m" + "Connection from: " + client.getInetAddress()); //display ip of connected device
+                System.out.println("Connection from: " + client.getInetAddress()); //display ip of connected device
                 new ServingManager(client).start();//create new thread to handle the connection, so it does not blocks the main thread.
             }
         } catch (Exception e) {

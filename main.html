@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>DBHost</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript">
@@ -18,7 +18,6 @@
                     list.sort();
                     var buttonList = "";
                     var content = document.getElementById("content");
-                    var navList = document.getElementById("navlist");
                     //fill navList and content with the same list of navigation buttons
                     for (var i = 0; i < list.length; i++) {
                         buttonList += "<button onclick=\"openTable(" + list[i][1] + ")\" class=\"buttonList\">"
@@ -26,7 +25,6 @@
                         +"</button>";
                     }
                     content.innerHTML += buttonList;
-                    navList.innerHTML += buttonList;
                 };
                 xmlreq.open("GET", "/commands", true);
                 xmlreq.send();
@@ -46,16 +44,10 @@
                 menuVisibility = false;
                 updateUI();
             }
+            
             //updates UI based on the visibility values
             function updateUI() {
-                if (menuVisibility) {
-                    document.getElementById("navlist").style.display = "inline";
-                    document.getElementById("menuButton").style.backgroundColor = "#606060";
-                } else {
-                    document.getElementById("navlist").style.display = "none";
-                    document.getElementById("menuButton").style.backgroundColor = "gray";
-                }
-
+                
                 if (profileVisibility) {
                     document.getElementsByTagName("footer")[0].style.display = "inline";
                     document.getElementById("profile").style.display = "inline";
@@ -127,7 +119,7 @@
             }
             #nav button{
                 height: 100%;
-                width: 50%;
+                width: 100%;
                 border: none;
                 background-color: gray;
             }
@@ -157,30 +149,6 @@
                 top: 20%;
                 bottom: 20%;
 
-            }
-            #navlist{
-                display: none;
-                position: absolute;
-                top:0px;
-                left: 0px;
-                width: 100%;
-                height: 90dvh;
-                background-color: gray;
-                z-index: 3;
-                overflow-y: auto;
-            }
-            #navlist p{
-                font-size: 4dvh;
-                width: 100%;
-                height: 5dvh;
-                background-color: #606060;
-            }
-            #navlist button{
-                text-align: left;
-            }
-
-            #navlist button:before{
-                content: '\27A2';
             }
             #profile{
                 display: none;
@@ -265,15 +233,9 @@
 
     <body onload="init()">
         <div id="nav">
-            <button id="menuButton" onclick="showHideMenu()">
-                <svg height="100%" width="100%" viewbox="0 0 100 100"><g stroke="black" stroke-width="6"><path stroke-linecap="round" d="M0 25 L100 25"/><path stroke-linecap="round" d="M0 50 L100 50"/><path stroke-linecap="round" d="M0 75 L100 75"/></g></svg>
-            </button>
             <button id="profileButton" onclick="showHideProfile()">
                 <svg height="100%" width="100%" viewbox="0 0 100 100"><circle cx="50" cy="30" r="20" stroke="black" stroke-width="6" fill="none"/><g stroke="black" stroke-width="6"><path d="M20 80 A 30 30 0 0 1 80 80 Z"/></g></svg>
             </button>
-        </div>
-        <div id="navlist">
-            <p>Tables:</p>
         </div>
         <div id="profile">
             <svg height="70dvw" width="70dvw" viewbox="0 0 100 100"><circle fill="none" stroke="black" stroke-width="3" cx ="50" cy="50" r="47"/><circle cx="50" cy="30" r="20" stroke="black" stroke-width="6" fill="none"/><g stroke="black" stroke-width="6"><path d="M20 80 A 30 30 0 0 1 80 80 Z"/></g></svg>
@@ -283,7 +245,7 @@
             <button onclick="logout()">Logout</button>
         </div>
         <div id="content">
-            <p>Choose a table to get started:</p>
+            <p>Choose a command to get started:</p>
         </div>
 
         <footer>
