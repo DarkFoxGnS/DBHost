@@ -182,6 +182,11 @@ public class ServingManager implements Runnable {
             case "/favicon.ico":
                 response += "HTTP/1.1 200 Not Found";
                 break;
+            case "/crypto.js":
+                response += createOKHeader("text/javascript");
+                response += readFromFile("crypto.js");
+                System.out.println("crypto.js sent");
+                break;
             default:
                 System.out.println("error");
                 System.out.println(parsedRequest.get("Request"));
