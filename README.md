@@ -5,6 +5,8 @@ This project requires Java 8 to run.
 
 The scope of the project was to create a web display, which provides access to data, that is contained in a SQLite3 database. The application uses seperate users with different access level to allow or deny access to the commands of the database. The database can be modified using the provided SQLite3 client (sqlite3.exe), that is provided in the /sql subfolder.
 
+The application is already filled and prepared with a demo database and data.
+
 To get started with hosting the application, just launch the Start.bat file in the main reprosotory.
 After "Waiting for connections..." is displayed, you can connect to the website, by typing "localhost" into the browser.
 
