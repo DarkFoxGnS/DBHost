@@ -1,0 +1,8 @@
+Username	Password	AccessLevel	Commands
+admin		admin		IT		All commands
+Skylar		Boss		Boss		Get Machines,Employees,Workgroups
+Tibor		Passw0rd	IT		All commands
+BASHlee		Linux		Manager		Get Employees,Workgroups.
+Rona		123asd		Receptionins	Get Employees
+LRube		Rulu		Maintenance	Get Machines
+Bekka		Rebi		Security	Get Employees
